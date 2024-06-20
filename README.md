@@ -20,9 +20,12 @@ For this code: T. Jiang, N. A. Bogodanov, A. Alavi, J. Chen, Individual and syne
 
 For dependences: 
 
-pyscf: Q. Sun, et al., Recent developments in the PySCF program package, <em>J. Chem. Phys.<\em> <strong>153<\strong>, 024109 (2020)
+pyscf: Q. Sun, et al., Recent developments in the PySCF program package, <em>J. Chem. Phys.</em> <strong>153</strong>, 024109 (2020)
+
 pyscf-dmrgscf: 
+
 block2: 
+
 neci: 
 
 For embedding method: 
