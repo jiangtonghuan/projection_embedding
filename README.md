@@ -16,19 +16,25 @@ Manby's projection embedding method implemented with PySCF. DMRG/DMRG-NEVPT2/FCI
 
 ## Citation:         
 
-For this code: T. Jiang, N. A. Bogodanov, A. Alavi, J. Chen, Individual and synergistic superexchange enhancement in cuprates, not published yet. 
+For this code: Jiang, T.; Bogodanov, N. A. ; Alavi, A. ; Chen, J.  Individual and synergistic superexchange enhancement in cuprates, not published yet. 
 
 For dependences: 
 
-pyscf: Q. Sun, et al., Recent developments in the PySCF program package, <em>J. Chem. Phys.</em> <strong>153</strong>, 024109 (2020)
+pyscf: 
 
-pyscf-dmrgscf: 
+Q. Sun, X. Zhang, S. Banerjee, P. Bao, M. Barbry, N. S. Blunt, N. A. Bogdanov, G. H. Booth, J. Chen, Z.-H. Cui, J. J. Eriksen, Y. Gao, S. Guo, J. Hermann, M. R. Hermes, K. Koh, P. Koval, S. Lehtola, Z. Li, J. Liu, N. Mardirossian, J. D. McClain, M. Motta, B. Mussard, H. Q. Pham, A. Pulkin, W. Purwanto, P. J. Robinson, E. Ronca, E. R. Sayfutyarova, M. Scheurer, H. F. Schurkus, J. E. T. Smith, C. Sun, S.-N. Sun, S. Upadhyay, L. K. Wagner, X. Wang, A. White, J. Daniel Whitfield, M. J. Williamson, S. Wouters, J. Yang, J. M. Yu, T. Zhu, T. C. Berkelbach, S. Sharma, A. Yu. Sokolov, and G. K.-L. Chan, Recent developments in the PySCF program package, <em>J. Chem. Phys.</em> <strong>153</strong>, 024109 (2020)
 
 block2: 
 
+Zhai, H.; Larsson, H. R.; Lee, S.; Cui, Z.; Zhu, T.; Sun, C.; Peng, L.; Peng, R.; Liao, K.; Tölle, J.; Yang, J.; Li, S.; Chan, G. K.-L. Block2: a comprehensive open source framework to develop and apply state-of-the-art DMRG algorithms in electronic structure and beyond, <em>J. Chem. Phys.</em> <strong>159</strong>, 234801 (2023)
+
 neci: 
 
+Guther, K.; Anderson, R. J.; Blunt, N. S.; Bogdanov, N. A.; Cleland, D.; Dattani, N.; Dobrautz, W.; Ghanem, K.; Jeszenszki, P.; Liebermann, N.; Manni, G. L.; Lozovoi, A. Y.; Luo, H.; Ma, D.; Merz, F.; Overy, C.; Rampp, M.; Samanta, P. K.; Schwarz, L. R.; Shepherd, J. J.; Smart, S. D.; Vitale, E.; Weser, O.; Booth, G. H.; Alavi, A. NECI: N -Electron Configuration Interaction with an Emphasis on State-of-the-Art Stochastic Methods <em>J. Chem. Phys.</em> <strong>153</strong>, 3, 034107 (2020)
+
 For embedding method: 
+
+Manby, F. R.; Stella, M.; Goodpaster, J. D.; Miller, T. F. A Simple, Exact Density-Functional-Theory Embedding Scheme. <em>J. Chem. Theory Comput.</em> <strong>8</strong>, 8, 2564–2568 (2012)
 
 ## Use: 
 
