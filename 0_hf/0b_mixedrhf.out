@@ -1,0 +1,25 @@
+ERROR: ld.so: object '/lib/intel64/libmkl_core.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+ERROR: ld.so: object '/lib/intel64/libmkl_sequential.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+Overwritten attributes  dump_flags get_occ get_grad  of <class 'pyscf.qmmm.itrf.QMMMSymAdaptedRHF'>
+overwrite output file: /lustre/home/1600011363/neci-work/embedding_code_release/0_hf/0b_mixedrhf.log
+no analysis for now
+E(HF) = -5766.998189470192
+Traceback (most recent call last):
+  File "/lustre/home/1600011363/neci-work/embedding_code_release/0_hf/0b_mixedrhf.py", line 301, in <module>
+    write_mulliken(mf, project+"-rhf_mixed1-mulliken")
+  File "/lustre/home/1600011363/neci-work/embedding_code_release/0_hf/0b_mixedrhf.py", line 160, in write_mulliken
+    orth_coeff = orth.orth_ao(mol, "meta_lowdin", s=s)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf/lo/orth.py", line 323, in orth_ao
+    pre_orth_ao = restore_ao_character(mol, pre_orth_ao)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf/lo/orth.py", line 71, in pre_orth_ao
+    return project_to_atomic_orbitals(mol, method)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf/lo/orth.py", line 188, in project_to_atomic_orbitals
+    if abs(ecp_ano_det_ovlp(atm, atmp, ecpcore)) > .1:
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf/lo/orth.py", line 125, in ecp_ano_det_ovlp
+    ecp_occ[ecp_idx] = numpy.hstack(ecp_occ_tmp)
+    ~~~~~~~^^^^^^^^^
+ValueError: shape mismatch: value array of shape (10,) could not be broadcast to indexing result of shape (9,)

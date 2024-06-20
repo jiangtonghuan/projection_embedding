@@ -1,0 +1,36 @@
+
+********************************** INPUT START **********************************
+nelec                                                           24
+spin                                                             0
+twodot_to_onedot                                                24
+orbitals                                                   FCIDUMP
+maxiter                                                         32
+sweep_tol                                               1.0000e-07
+outputlevel                                                      2
+hf_occ                                                    integral
+twopdm                                                            
+prefix                                           /tmp/dmrg_1511818
+num_thrds                                                       32
+warmup                                                         occ
+occ                       2 2 2 2 2 2 2 2 2 2 2 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+cbias                                                          0.2
+singlet_embedding                                                 
+gaopt                                                      default
+mem                                                          180 g
+schedule                  Sweep   0-   3 : Mmps =   200 Noise =    0.0001 DavTol =    0.0001
+                          Sweep   4-   7 : Mmps =   400 Noise =    0.0001 DavTol =    0.0001
+                          Sweep   8-  11 : Mmps =   800 Noise =    0.0001 DavTol =    0.0001
+                          Sweep  12-  13 : Mmps =  1000 Noise =    0.0001 DavTol =    0.0001
+                          Sweep  14-  15 : Mmps =  1000 Noise =     1e-05 DavTol =     1e-05
+                          Sweep  16-  17 : Mmps =  1000 Noise =     1e-06 DavTol =     1e-06
+                          Sweep  18-  19 : Mmps =  1000 Noise =     1e-07 DavTol =     1e-07
+                          Sweep  20-  31 : Mmps =  1000 Noise =         0 DavTol =     1e-08
+irrep                                                            1
+********************************** INPUT END   **********************************
+
+SPIN ADAPTED - REAL DOMAIN - DOUBLE PREC
+qc mpo type =  QCTypes.Conventional
+Traceback (most recent call last):
+  File "/lustre/home/1600011363/anaconda3/bin/block2main", line 645, in <module>
+    init_memory(isize=int(memory * 0.1),
+MemoryError: std::bad_alloc

@@ -1,0 +1,10 @@
+/var/spool/slurmd/job3303834/slurm_script: line 23: /lustre/home/1600011363/pyscf-dev.sh: No such file or directory
+/var/spool/slurmd/job3303834/slurm_script: line 24: /lustre/home/1600011363/src/libmsym/source_libmsym.sh: No such file or directory
+HOSTNAME=l02c14n4
+rm: cannot remove '/scratch/tmp/*': No such file or directory
+mkdir: cannot create directory ‘/scratch’: Permission denied
+/var/spool/slurmd/job3303834/slurm_script: line 61: 1407294 Killed                  python ${basename}.py > ${basename}.out 2>&1
+ERROR: ld.so: object '/lib/intel64/libmkl_core.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+ERROR: ld.so: object '/lib/intel64/libmkl_sequential.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+rm: cannot remove '/scratch/1600011363/tmp/pyscf_3a_avas4e3o_': No such file or directory
+slurmstepd: error: Detected 1 oom_kill event in StepId=3303834.batch. Some of the step tasks have been OOM Killed.

@@ -1,0 +1,6 @@
+ERROR: ld.so: object '/lib/intel64/libmkl_core.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+ERROR: ld.so: object '/lib/intel64/libmkl_sequential.so' from LD_PRELOAD cannot be preloaded (cannot open shared object file): ignored.
+Overwritten attributes  eig energy_nuc dump_flags get_grad get_occ get_hcore  of <class 'pyscf.qmmm.itrf.QMMMSymAdaptedRHF'>
+WARN: orbitals [488 489] not strictly symmetrized.
+WARN: They can be symmetrized with pyscf.symm.symmetrize_space function.
+overwrite output file: /lustre/home/1600011363/neci-work/embedding_code_release/2_proj/2a_proj.log

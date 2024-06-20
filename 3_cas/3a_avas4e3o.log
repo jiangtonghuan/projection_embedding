@@ -1,0 +1,514 @@
+#INFO: **** input file is /lustre/home/1600011363/neci-work/embedding_code_release/3_cas/3a_avas4e3o.py ****
+#!/usr/bin/env python3
+
+import numpy as np
+from pyscf import gto, scf  # , mcscf, fci
+from pyscf.qmmm import mm_charge
+# from pyscf import lo
+from pyscf.tools import molden
+# from pyscf.lib import logger
+# from pyscf import symm
+import os
+import sys
+from pyscf.lib import logger
+from pyscf.lo import orth
+from pyscf.lo import PM
+from pyscf.pbc.scf.addons import smearing_
+from pyscf import mcscf
+import scipy.linalg
+from functools import reduce
+
+# assign project to the filename without .py
+pyfile = __file__
+project = pyfile[:pyfile.rfind(".")]
+
+mol = gto.Mole()
+mol.max_memory = 110*1024
+mol.verbose = 4
+mol.output = project+".log"
+mol.build(
+    atom="""
+O1     -0.000000000     0.000000000     0.092050000
+Cu1     0.006363961     1.904945669     0.000000000
+Cu1    -0.006363961    -1.904945669     0.000000000
+La1     1.878187334    -0.020394374    -1.814700000
+La1    -1.878187334     0.020394374    -1.814700000
+La1     1.931704003     0.033122296     1.814700000
+La1    -1.931704003    -0.033122296     1.814700000
+O2      1.898581707    -1.898581707     0.092050000
+O2     -1.898581707     1.898581707     0.092050000
+O2      1.911309630     1.911309630    -0.092050000
+O2     -1.911309630    -1.911309630    -0.092050000
+O2      0.112137236    -1.786444471    -2.459050000
+O2     -0.112137236     1.786444471    -2.459050000
+O2     -0.124865158    -2.023446866     2.459050000
+O2      0.124865158     2.023446866     2.459050000
+O2      3.809891337     0.012727922    -0.092050000
+O2      0.012727922     3.809891337    -0.092050000
+O2     -3.809891337    -0.012727922    -0.092050000
+O2     -0.012727922    -3.809891337    -0.092050000
+Cu2    -3.803527376     1.892217746     0.000000000
+Cu2     3.803527376    -1.892217746     0.000000000
+Cu2    -3.816255298    -1.917673591     0.000000000
+Cu2     3.816255298     1.917673591     0.000000000
+La2     1.890915256     3.789496963     1.814700000
+La2    -1.890915256    -3.789496963     1.814700000
+La2    -1.918976081     3.776769041    -1.814700000
+La2     1.918976081    -3.776769041    -1.814700000
+La2     1.865459412    -3.830285711     1.814700000
+La2    -1.865459412     3.830285711     1.814700000
+La2    -1.944431925    -3.843013633    -1.814700000
+La2     1.944431925     3.843013633    -1.814700000
+La2     0.020394374    -1.878187334     4.760300000
+La2    -0.020394374     1.878187334     4.760300000
+La2     0.033122296     1.931704003    -4.760300000
+La2    -0.033122296    -1.931704003    -4.760300000
+O3      3.797163415    -3.797163415     0.092050000
+O3     -3.797163415     3.797163415     0.092050000
+O3      3.822619259     3.822619259     0.092050000
+O3     -3.822619259    -3.822619259     0.092050000
+Cu2     0.019091883     5.714837006     0.000000000
+Cu2    -0.019091883    -5.714837006     0.000000000
+O3      1.885853785    -5.708473045    -0.092050000
+O3     -1.885853785     5.708473045    -0.092050000
+O3      5.708473045    -1.885853785    -0.092050000
+O3     -5.708473045     1.885853785    -0.092050000
+O3     -5.721200967    -1.924037552     0.092050000
+O3     -1.924037552    -5.721200967     0.092050000
+O3      1.924037552     5.721200967     0.092050000
+O3      5.721200967     1.924037552     0.092050000
+O3      0.025455844     7.619782674     0.092050000
+O3     -0.025455844    -7.619782674     0.092050000
+""",
+    ecp={"Cu2": "crenbs",
+         "La": gto.basis.parse_ecp("""
+La nelec 46
+La ul
+2      1.000000000            0.0000000
+La S
+2      3.30990000            91.9321770
+2      1.65500000            -3.7887640
+La P
+2      2.83680000            63.7594860
+2      1.41840000            -0.6479580
+La D
+2      2.02130000            36.1191730
+2      1.01070000             0.2191140
+La F
+2      4.02860000           -36.0100160
+           """),
+         "La2": "crenbs"
+         },
+    basis={"Cu1": "ccpvdz",
+           "Cu2": "crenbs",
+           "O1": "ccpvdz",
+           "O2": "ccpvdz",
+           "O3": "ccpvdz@3s2p",
+           "La1":  gto.parse("""
+#BASIS SET: (4s4p3d) -> [2s2p1d] Basis  for PP46MWB
+La   S
+      5.087399            -0.417243             0.000000
+      4.270978             0.886010             0.000000
+      1.915458            -1.419752             0.000000
+      0.525596             0.000000             1.000000
+La   P
+      3.025161             0.538196             0.000000
+      2.382095            -0.981640             0.000000
+      0.584426             1.239590             0.000000
+      0.260360             0.000000             1.000000
+La   D
+      1.576824            -0.096944
+      0.592390             0.407466
+      0.249500             0.704363
+END
+"""),
+           "La2": "crenbs"
+           },
+    symmetry=False,
+    # symmetry=True,
+    # symmetry="D2h",
+    charge=10,
+)
+
+chg_fname = "../0_hf/La214_Grande.evjen.lat"
+chg_data = np.loadtxt(chg_fname, skiprows=2)
+coords = chg_data[:, 0:3]
+assert (coords == np.loadtxt(chg_fname, skiprows=2)[:, 0:3]).all()
+charges = chg_data[:, 3]
+
+def dump_flags(qmmm_obj, verbose=None):
+    method_class = qmmm_obj.__class__.__bases__[1]
+    method_class.dump_flags(qmmm_obj, verbose)
+    logger.info(qmmm_obj, "** Add background charges for %s", method_class)
+    if qmmm_obj.verbose >= logger.DEBUG:
+        logger.debug(qmmm_obj, 'Charge      Location')
+        coords = qmmm_obj.mm_mol.atom_coords()
+        charges = qmmm_obj.mm_mol.atom_charges()
+        if len(charges) <= 12:
+            for i, z in enumerate(charges):
+                logger.debug(qmmm_obj, '%.9g    %s', z, coords[i])
+        else:
+            for i, z in enumerate(charges[:6]):
+                logger.debug(qmmm_obj, '%.9g    %s', z, coords[i])
+            logger.debug(qmmm_obj, '...... (%i point charges in total)', len(charges))
+            for i, z in enumerate(charges[-6:]):
+                logger.debug(qmmm_obj, '%.9g    %s', z, coords[i])
+    return qmmm_obj
+
+def add_vext(mf, mol=None, h1e=None, enuc=None, v_ext=None, e_ext=None):
+    '''
+        A one-step function to add external potential and extra energy (1-body term, mf.get_hcore(); and constant term, mf.energy_nuc()).
+        If this function is called on the same mf for many times, the latter call will remove extra h and e and re-add external terms for the original mf.
+        To remove extra terms, just call add_vext(mf) with unspecified v_ext and e_ext.
+    '''
+    if mol is None:
+        mol = mf.mol
+    if h1e is None:
+        h1e = mf.__class__.get_hcore(mf, mol)
+    if enuc is None:
+        enuc = mf.__class__.energy_nuc(mf)
+    if v_ext is not None:
+        logger.note(mf, '** Add external potential for %s **' % mf.__class__)
+        mf.get_hcore = lambda *arg: h1e + v_ext
+    else:
+        logger.note(mf, '** No external potential added for %s **' % mf.__class__)
+    if e_ext is not None:
+        logger.note(mf, '** Add extra energy %.8f for %s **' % (e_ext, mf.__class__))
+        mf.energy_nuc = lambda *arg: enuc + e_ext
+    else:
+        logger.note(mf, '** No external potential added for %s **' % mf.__class__)
+
+from pyscf.lib.chkfile import load, save
+emb_chk = "../2_proj/2a_proj_rhf_mixed.chk"
+h1e = load(emb_chk, "h1e")
+vemb = load(emb_chk, "vemb")
+eemb = load(emb_chk, "eemb")
+
+mf = mm_charge(scf.RHF(mol), coords, charges)
+s = mf.get_ovlp()
+mf.dump_flags = lambda *args, **kwargs: dump_flags(mf, *args, **kwargs)
+mf.mo_coeff = load(emb_chk, "scf/mo_coeff")
+mf.mo_occ = load(emb_chk, "scf/mo_occ")
+mf.mo_energy = load(emb_chk, "scf/mo_energy")
+nelec_a = int(np.sum(mf.mo_occ))
+logger.note(mf, "num of electron = %i" % nelec_a)
+mf.mol.nelectron = nelec_a
+
+add_vext(mf, h1e=h1e, v_ext=vemb, e_ext=eemb)
+mf.chkfile = project + "_rhf_mixed.chk"
+
+nel, norb = 4, 3  # Target num of electron and orbitals
+a_nel, a_norb = 0, 0  # initialize for the while loop below
+thold, step = 0.99, 0.02 # Initialization and step length of while loop
+
+# ao_labels = ["O1 2py", "Cu1 3dz^2", "Cu1 3dx2-y2",
+#              "O1 3py", "Cu1 4dz^2", "Cu1 4dx2-y2"]
+
+ao_labels = ["O1 2py", "Cu1 3dx2-y2"]
+
+# Simple procedure:
+# a_norb, a_nel, a_mo = avas.avas(mf, ao_labels, canonicalize=True,
+#                                        minao="ANO", threshold=thold)
+# Procedure to ensure the desired active space
+from pyscf.mcscf.avas import avas
+while (a_nel != nel) or (a_norb != norb):
+    if (a_nel <= nel) and (a_norb <= norb) and thold > 0:
+        thold -= step
+        a_norb, a_nel, a_mo = avas(mf, ao_labels, canonicalize=True,
+                                        minao="ANO", threshold=thold)
+        logger.info(mf, "Currently a_nel={}, a_norb={}, threshold={}".format(a_nel, a_norb, thold))
+    else:
+        molden.from_mo(mol, project + "{}e{}o_avas.molden".format(a_nel, a_norb), a_mo)
+        assert (a_nel == nel and a_norb == norb), \
+            ("Check what AVAS is doing "
+             "a_nel={}, a_norb={}, threshold={}".format(a_nel, a_norb, thold))
+
+logger.info(mf, "a_nel = %d, a_norb = %d ", a_nel, a_norb)
+molden.from_mo(mol, project + "{}e{}o_avas.molden".format(nel, norb), a_mo)
+
+mc = mcscf.CASSCF(mf, norb, nel)
+mc.chk_ci = True
+mc.chkfile = project + "_rhf_mixed.chk"
+mc.kernel(a_mo)
+
+# from pyscf.symm.addons import label_orb_symm
+# mc_symm = label_orb_symm(mol, mol.irrep_id, mol.symm_orb, mc.mo_coeff, s=s)
+mc_occ = np.diag(reduce(np.dot, (mc.mo_coeff.T, s, mc.make_rdm1(), s, mc.mo_coeff)))
+molden.from_mo(mol, project+"_rhf_mixed.molden", mc.mo_coeff, ene=mc.mo_energy, occ=mc_occ)
+
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='l08c50n4', release='4.18.0-425.3.1.el8.x86_64', version='#1 SMP Wed Nov 9 20:13:27 UTC 2022', machine='x86_64')  Threads 64
+Python 3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]
+numpy 1.24.3  scipy 1.11.1
+Date: Mon Jun 10 03:14:12 2024
+PySCF version 2.5.0
+PySCF path  /lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 4
+[INPUT] num. atoms = 51
+[INPUT] num. electrons = 410
+[INPUT] charge = 10
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O1     0.000000000000   0.000000000000   0.092050000000 AA    0.000000000000   0.000000000000   0.173949289766 Bohr   0.0
+[INPUT]  2 Cu1    0.006363961000   1.904945669000   0.000000000000 AA    0.012026143357   3.599825596586   0.000000000000 Bohr   0.0
+[INPUT]  3 Cu1   -0.006363961000  -1.904945669000   0.000000000000 AA   -0.012026143357  -3.599825596586   0.000000000000 Bohr   0.0
+[INPUT]  4 La1    1.878187334000  -0.020394374000  -1.814700000000 AA    3.549259671887  -0.038539781342  -3.429285998248 Bohr   0.0
+[INPUT]  5 La1   -1.878187334000   0.020394374000  -1.814700000000 AA   -3.549259671887   0.038539781342  -3.429285998248 Bohr   0.0
+[INPUT]  6 La1    1.931704003000   0.033122296000   1.814700000000 AA    3.650391519396   0.062592068057   3.429285998248 Bohr   0.0
+[INPUT]  7 La1   -1.931704003000  -0.033122296000   1.814700000000 AA   -3.650391519396  -0.062592068057   3.429285998248 Bohr   0.0
+[INPUT]  8 O2     1.898581707000  -1.898581707000   0.092050000000 AA    3.587799451339  -3.587799451339   0.173949289766 Bohr   0.0
+[INPUT]  9 O2    -1.898581707000   1.898581707000   0.092050000000 AA   -3.587799451339   3.587799451339   0.173949289766 Bohr   0.0
+[INPUT] 10 O2     1.911309630000   1.911309630000  -0.092050000000 AA    3.611851739944   3.611851739944  -0.173949289766 Bohr   0.0
+[INPUT] 11 O2    -1.911309630000  -1.911309630000  -0.092050000000 AA   -3.611851739944  -3.611851739944  -0.173949289766 Bohr   0.0
+[INPUT] 12 O2     0.112137236000  -1.786444471000  -2.459050000000 AA    0.211908664406  -3.375890786934  -4.646931026612 Bohr   0.0
+[INPUT] 13 O2    -0.112137236000   1.786444471000  -2.459050000000 AA   -0.211908664406   3.375890786934  -4.646931026612 Bohr   0.0
+[INPUT] 14 O2    -0.124865158000  -2.023446866000   2.459050000000 AA   -0.235960951121  -3.823760404350   4.646931026612 Bohr   0.0
+[INPUT] 15 O2     0.124865158000   2.023446866000   2.459050000000 AA    0.235960951121   3.823760404350   4.646931026612 Bohr   0.0
+[INPUT] 16 O2     3.809891337000   0.012727922000  -0.092050000000 AA    7.199651191283   0.024052286715  -0.173949289766 Bohr   0.0
+[INPUT] 17 O2     0.012727922000   3.809891337000  -0.092050000000 AA    0.024052286715   7.199651191283  -0.173949289766 Bohr   0.0
+[INPUT] 18 O2    -3.809891337000  -0.012727922000  -0.092050000000 AA   -7.199651191283  -0.024052286715  -0.173949289766 Bohr   0.0
+[INPUT] 19 O2    -0.012727922000  -3.809891337000  -0.092050000000 AA   -0.024052286715  -7.199651191283  -0.173949289766 Bohr   0.0
+[INPUT] 20 Cu2   -3.803527376000   1.892217746000   0.000000000000 AA   -7.187625047926   3.575773307982   0.000000000000 Bohr   0.0
+[INPUT] 21 Cu2    3.803527376000  -1.892217746000   0.000000000000 AA    7.187625047926  -3.575773307982   0.000000000000 Bohr   0.0
+[INPUT] 22 Cu2   -3.816255298000  -1.917673591000   0.000000000000 AA   -7.211677334640  -3.623877883301   0.000000000000 Bohr   0.0
+[INPUT] 23 Cu2    3.816255298000   1.917673591000   0.000000000000 AA    7.211677334640   3.623877883301   0.000000000000 Bohr   0.0
+[INPUT] 24 La2    1.890915256000   3.789496963000   1.814700000000 AA    3.573311958602   7.161111409941   3.429285998248 Bohr   0.0
+[INPUT] 25 La2   -1.890915256000  -3.789496963000   1.814700000000 AA   -3.573311958602  -7.161111409941   3.429285998248 Bohr   0.0
+[INPUT] 26 La2   -1.918976081000   3.776769041000  -1.814700000000 AA   -3.626339232681   7.137059123226  -3.429285998248 Bohr   0.0
+[INPUT] 27 La2    1.918976081000  -3.776769041000  -1.814700000000 AA    3.626339232681  -7.137059123226  -3.429285998248 Bohr   0.0
+[INPUT] 28 La2    1.865459412000  -3.830285711000   1.814700000000 AA    3.525207385172  -7.238190972625   3.429285998248 Bohr   0.0
+[INPUT] 29 La2   -1.865459412000   3.830285711000   1.814700000000 AA   -3.525207385172   7.238190972625   3.429285998248 Bohr   0.0
+[INPUT] 30 La2   -1.944431925000  -3.843013633000  -1.814700000000 AA   -3.674443806111  -7.262243259340  -3.429285998248 Bohr   0.0
+[INPUT] 31 La2    1.944431925000   3.843013633000  -1.814700000000 AA    3.674443806111   7.262243259340  -3.429285998248 Bohr   0.0
+[INPUT] 32 La2    0.020394374000  -1.878187334000   4.760300000000 AA    0.038539781342  -3.549259671887   8.995663270767 Bohr   0.0
+[INPUT] 33 La2   -0.020394374000   1.878187334000   4.760300000000 AA   -0.038539781342   3.549259671887   8.995663270767 Bohr   0.0
+[INPUT] 34 La2    0.033122296000   1.931704003000  -4.760300000000 AA    0.062592068057   3.650391519396  -8.995663270767 Bohr   0.0
+[INPUT] 35 La2   -0.033122296000  -1.931704003000  -4.760300000000 AA   -0.062592068057  -3.650391519396  -8.995663270767 Bohr   0.0
+[INPUT] 36 O3     3.797163415000  -3.797163415000   0.092050000000 AA    7.175598904568  -7.175598904568   0.173949289766 Bohr   0.0
+[INPUT] 37 O3    -3.797163415000   3.797163415000   0.092050000000 AA   -7.175598904568   7.175598904568   0.173949289766 Bohr   0.0
+[INPUT] 38 O3     3.822619259000   3.822619259000   0.092050000000 AA    7.223703477998   7.223703477998   0.173949289766 Bohr   0.0
+[INPUT] 39 O3    -3.822619259000  -3.822619259000   0.092050000000 AA   -7.223703477998  -7.223703477998   0.173949289766 Bohr   0.0
+[INPUT] 40 Cu2    0.019091883000   5.714837006000   0.000000000000 AA    0.036078430072  10.799476787869   0.000000000000 Bohr   0.0
+[INPUT] 41 Cu2   -0.019091883000  -5.714837006000   0.000000000000 AA   -0.036078430072 -10.799476787869   0.000000000000 Bohr   0.0
+[INPUT] 42 O3     1.885853785000  -5.708473045000  -0.092050000000 AA    3.563747164624 -10.787450644512  -0.173949289766 Bohr   0.0
+[INPUT] 43 O3    -1.885853785000   5.708473045000  -0.092050000000 AA   -3.563747164624  10.787450644512  -0.173949289766 Bohr   0.0
+[INPUT] 44 O3     5.708473045000  -1.885853785000  -0.092050000000 AA   10.787450644512  -3.563747164624  -0.173949289766 Bohr   0.0
+[INPUT] 45 O3    -5.708473045000   1.885853785000  -0.092050000000 AA  -10.787450644512   3.563747164624  -0.173949289766 Bohr   0.0
+[INPUT] 46 O3    -5.721200967000  -1.924037552000   0.092050000000 AA  -10.811502931227  -3.635904026659   0.173949289766 Bohr   0.0
+[INPUT] 47 O3    -1.924037552000  -5.721200967000   0.092050000000 AA   -3.635904026659 -10.811502931227   0.173949289766 Bohr   0.0
+[INPUT] 48 O3     1.924037552000   5.721200967000   0.092050000000 AA    3.635904026659  10.811502931227   0.173949289766 Bohr   0.0
+[INPUT] 49 O3     5.721200967000   1.924037552000   0.092050000000 AA   10.811502931227   3.635904026659   0.173949289766 Bohr   0.0
+[INPUT] 50 O3     0.025455844000   7.619782674000   0.092050000000 AA    0.048104573430  14.399302382566   0.173949289766 Bohr   0.0
+[INPUT] 51 O3    -0.025455844000  -7.619782674000   0.092050000000 AA   -0.048104573430 -14.399302382566   0.173949289766 Bohr   0.0
+
+nuclear repulsion = 9564.87656255217
+number of shells = 195
+number of NR pGTOs = 1558
+number of NR cGTOs = 590
+basis = {'Cu1': 'ccpvdz', 'Cu2': 'crenbs', 'O1': 'ccpvdz', 'O2': 'ccpvdz', 'O3': 'ccpvdz@3s2p', 'La1': [[0, [5.087399, -0.417243, 0.0], [4.270978, 0.88601, 0.0], [1.915458, -1.419752, 0.0], [0.525596, 0.0, 1.0]], [1, [3.025161, 0.538196, 0.0], [2.382095, -0.98164, 0.0], [0.584426, 1.23959, 0.0], [0.26036, 0.0, 1.0]], [2, [1.576824, -0.096944], [0.59239, 0.407466], [0.2495, 0.704363]]], 'La2': 'crenbs'}
+ecp = {'Cu2': 'crenbs', 'La': [46, [[-1, [[], [], [[1.0, 0.0]], [], [], [], []]], [0, [[], [], [[3.3099, 91.932177], [1.655, -3.788764]], [], [], [], []]], [1, [[], [], [[2.8368, 63.759486], [1.4184, -0.647958]], [], [], [], []]], [2, [[], [], [[2.0213, 36.119173], [1.0107, 0.219114]], [], [], [], []]], [3, [[], [], [[4.0286, -36.010016]], [], [], [], []]]]], 'La2': 'crenbs'}
+CPU time:         0.89
+num of electron = 196
+** Add external potential for <class 'pyscf.qmmm.itrf.QMMMRHF'> **
+** Add extra energy -7811.21095728 for <class 'pyscf.qmmm.itrf.QMMMRHF'> **
+
+******** AVAS flags ********
+aolabels = ['O1 2py', 'Cu1 3dx2-y2']
+ncore = 0
+minao = ANO
+threshold = 0.97
+with_iao = False
+openshell_option = 2
+canonicalize = True
+
+** AVAS **
+  Total number of HF MOs  is equal to    590
+  Number of occupied HF MOs is equal to  99
+reference AO indices for ANO ['O1 2py', 'Cu1 3dx2-y2']:
+ [  9 129 306]
+Option 2: threshold 0.97
+Active from occupied = 2 , eig [0.97567176 0.98882218]
+Inactive from occupied = 97
+Active from unoccupied = 0 , eig []
+Inactive from unoccupied = 491
+Dimensions of active 2
+# of alpha electrons 1
+# of beta electrons 1
+Currently a_nel=2, a_norb=2, threshold=0.97
+
+******** AVAS flags ********
+aolabels = ['O1 2py', 'Cu1 3dx2-y2']
+ncore = 0
+minao = ANO
+threshold = 0.95
+with_iao = False
+openshell_option = 2
+canonicalize = True
+
+** AVAS **
+  Total number of HF MOs  is equal to    590
+  Number of occupied HF MOs is equal to  99
+reference AO indices for ANO ['O1 2py', 'Cu1 3dx2-y2']:
+ [  9 129 306]
+Option 2: threshold 0.95
+Active from occupied = 3 , eig [0.95601786 0.97567176 0.98882218]
+Inactive from occupied = 96
+Active from unoccupied = 0 , eig []
+Inactive from unoccupied = 491
+Dimensions of active 3
+# of alpha electrons 2
+# of beta electrons 2
+Currently a_nel=4, a_norb=3, threshold=0.95
+a_nel = 4, a_norb = 3 
+
+******** <class 'pyscf.mcscf.mc1step.CASSCF'> ********
+CAS (2e+2e, 3o), ncore = 96, nvir = 491
+max_cycle_macro = 50
+max_cycle_micro = 4
+conv_tol = 1e-07
+conv_tol_grad = None
+orbital rotation max_stepsize = 0.02
+orbital rotation threshold for CI restart = 0.01
+augmented hessian ah_max_cycle = 30
+augmented hessian ah_conv_tol = 1e-12
+augmented hessian ah_linear dependence = 1e-14
+augmented hessian ah_level shift = 1e-08
+augmented hessian ah_start_tol = 2.5
+augmented hessian ah_start_cycle = 3
+augmented hessian ah_grad_trust_region = 3
+kf_trust_region = 3
+kf_interval = 4
+ci_response_space = 4
+ci_grad_trust_region = 3
+with_dep4 0
+natorb = False
+canonicalization = True
+sorting_mo_energy = False
+ao2mo_level = 2
+chkfile = /lustre/home/1600011363/neci-work/embedding_code_release/3_cas/3a_avas4e3o_rhf_mixed.chk
+max_memory 112640 MB (current use 590 MB)
+internal_rotation = False
+******** <class 'pyscf.fci.direct_spin1.FCISolver'> ********
+max. cycles = 50
+conv_tol = 1e-08
+davidson only = False
+linear dependence = 1e-12
+level shift = 0.001
+max iter space = 12
+max_memory 112640 MB
+nroots = 1
+pspace_size = 400
+spin = None
+CASCI E = -5767.14380117299  S^2 = 0.0000000
+Set conv_tol_grad to 0.000316228
+macro iter   1 ( 12 JK    3 micro), CASSCF E = -5767.36201104733  dE = -2.18209874e-01  S^2 = 0.0000000
+               |grad[o]|=0.856  |grad[c]|= 0.22  |ddm|=0.0292  |maxRot[o]|=0.149
+macro iter   2 (  7 JK    2 micro), CASSCF E = -5767.41851274156  dE = -5.65016942e-02  S^2 = 0.0000000
+               |grad[o]|=0.454  |grad[c]|=0.0584  |ddm|=0.0188  |maxRot[o]|=0.0698
+macro iter   3 (  7 JK    2 micro), CASSCF E = -5767.43428676759  dE = -1.57740260e-02  S^2 = 0.0000000
+               |grad[o]|=0.208  |grad[c]|=0.0169  |ddm|=0.0194  |maxRot[o]|=0.0499
+macro iter   4 (  8 JK    2 micro), CASSCF E = -5767.43553457106  dE = -1.24780346e-03  S^2 = 0.0000000
+               |grad[o]|=0.069  |grad[c]|=0.00251  |ddm|=0.013  |maxRot[o]|=0.0212
+macro iter   5 (  7 JK    2 micro), CASSCF E = -5767.43011228533  dE =  5.42228573e-03  S^2 = 0.0000000
+               |grad[o]|=0.0939  |grad[c]|=0.00486  |ddm|=0.00925  |maxRot[o]|=0.0458
+macro iter   6 (  7 JK    2 micro), CASSCF E = -5767.43399550912  dE = -3.88322379e-03  S^2 = 0.0000000
+               |grad[o]|=0.682  |grad[c]|=0.00395  |ddm|=0.00129  |maxRot[o]|=0.00994
+macro iter   7 (  4 JK    2 micro), CASSCF E = -5767.43430489575  dE = -3.09386634e-04  S^2 = 0.0000000
+               |grad[o]|= 0.33  |grad[c]|=0.000583  |ddm|=0.00152  |maxRot[o]|=0.00298
+macro iter   8 (  6 JK    2 micro), CASSCF E = -5767.43546411486  dE = -1.15921911e-03  S^2 = 0.0000000
+               |grad[o]|= 0.25  |grad[c]|=0.00199  |ddm|=0.00842  |maxRot[o]|=0.037
+macro iter   9 (  4 JK    2 micro), CASSCF E = -5767.43553977982  dE = -7.56649561e-05  S^2 = 0.0000000
+               |grad[o]|=0.112  |grad[c]|=0.00026  |ddm|=0.00133  |maxRot[o]|=0.0039
+macro iter  10 (  4 JK    2 micro), CASSCF E = -5767.43550449239  dE =  3.52874304e-05  S^2 = 0.0000000
+               |grad[o]|=0.0977  |grad[c]|=5.65e-05  |ddm|=0.000275  |maxRot[o]|=0.00176
+macro iter  11 (  5 JK    2 micro), CASSCF E = -5767.43566133974  dE = -1.56847350e-04  S^2 = 0.0000000
+               |grad[o]|=0.104  |grad[c]|=0.000304  |ddm|=0.00102  |maxRot[o]|=0.00638
+macro iter  12 (  4 JK    2 micro), CASSCF E = -5767.43568275354  dE = -2.14138045e-05  S^2 = 0.0000000
+               |grad[o]|=0.0469  |grad[c]|=0.0001  |ddm|=0.000368  |maxRot[o]|=0.000363
+macro iter  13 (  7 JK    2 micro), CASSCF E = -5767.43574832735  dE = -6.55738049e-05  S^2 = 0.0000000
+               |grad[o]|=0.0275  |grad[c]|=0.000189  |ddm|=0.000558  |maxRot[o]|=0.0112
+macro iter  14 (  8 JK    2 micro), CASSCF E = -5767.43574905463  dE = -7.27283805e-07  S^2 = 0.0000000
+               |grad[o]|=0.0145  |grad[c]|=0.000122  |ddm|=0.000926  |maxRot[o]|=0.00542
+macro iter  15 (  4 JK    2 micro), CASSCF E = -5767.43575092147  dE = -1.86683883e-06  S^2 = 0.0000000
+               |grad[o]|= 0.04  |grad[c]|=2.85e-05  |ddm|=0.00016  |maxRot[o]|=0.000234
+macro iter  16 (  4 JK    2 micro), CASSCF E = -5767.43575413135  dE = -3.20988056e-06  S^2 = 0.0000000
+               |grad[o]|=0.0374  |grad[c]|=1.62e-05  |ddm|=8.88e-05  |maxRot[o]|=8.88e-05
+macro iter  17 (  4 JK    2 micro), CASSCF E = -5767.43575589943  dE = -1.76808317e-06  S^2 = 0.0000000
+               |grad[o]|=0.0361  |grad[c]|=1.31e-05  |ddm|=6.71e-05  |maxRot[o]|=4.33e-05
+macro iter  18 (  3 JK    1 micro), CASSCF E = -5767.43575516950  dE =  7.29937710e-07  S^2 = 0.0000000
+               |grad[o]|=0.0359  |grad[c]|=1.46e-05  |ddm|=4.47e-05  |maxRot[o]|=5.96e-05
+macro iter  19 (  3 JK    1 micro), CASSCF E = -5767.43575652062  dE = -1.35112441e-06  S^2 = 0.0000000
+               |grad[o]|=0.0347  |grad[c]|=7.27e-06  |ddm|=1.59e-05  |maxRot[o]|=6.62e-05
+macro iter  20 (  4 JK    2 micro), CASSCF E = -5767.43576129803  dE = -4.77740832e-06  S^2 = 0.0000000
+               |grad[o]|=0.0378  |grad[c]|=9.55e-06  |ddm|=2.96e-05  |maxRot[o]|=5.76e-05
+macro iter  21 (  3 JK    1 micro), CASSCF E = -5767.43576308585  dE = -1.78781738e-06  S^2 = 0.0000000
+               |grad[o]|=0.0255  |grad[c]|=9.63e-06  |ddm|=1.7e-05  |maxRot[o]|=6.61e-05
+macro iter  22 (  3 JK    1 micro), CASSCF E = -5767.43576327812  dE = -1.92269908e-07  S^2 = 0.0000000
+               |grad[o]|=0.0191  |grad[c]|=7.83e-06  |ddm|=1.7e-05  |maxRot[o]|=3.73e-05
+macro iter  23 (  3 JK    1 micro), CASSCF E = -5767.43576336066  dE = -8.25439201e-08  S^2 = 0.0000000
+               |grad[o]|=0.0183  |grad[c]|=3.87e-06  |ddm|=6.75e-06  |maxRot[o]|=2.5e-05
+macro iter  24 (  3 JK    1 micro), CASSCF E = -5767.43576356807  dE = -2.07414814e-07  S^2 = 0.0000000
+               |grad[o]|=0.018  |grad[c]|=5.25e-06  |ddm|=1.19e-05  |maxRot[o]|=3.24e-05
+macro iter  25 (  3 JK    1 micro), CASSCF E = -5767.43576362382  dE = -5.57483872e-08  S^2 = 0.0000000
+               |grad[o]|=0.0174  |grad[c]|=4.7e-06  |ddm|=8.03e-06  |maxRot[o]|=2.56e-05
+macro iter  26 (  3 JK    1 micro), CASSCF E = -5767.43576363756  dE = -1.37406460e-08  S^2 = 0.0000000
+               |grad[o]|=0.0172  |grad[c]|=5.03e-06  |ddm|=1.13e-05  |maxRot[o]|=2.04e-05
+macro iter  27 (  3 JK    1 micro), CASSCF E = -5767.43576365008  dE = -1.25146471e-08  S^2 = 0.0000000
+               |grad[o]|=0.0172  |grad[c]|=3.31e-06  |ddm|=5.7e-06  |maxRot[o]|=2.18e-05
+macro iter  28 (  3 JK    1 micro), CASSCF E = -5767.43576366701  dE = -1.69366103e-08  S^2 = 0.0000000
+               |grad[o]|=0.0172  |grad[c]|=4.44e-06  |ddm|=8.14e-06  |maxRot[o]|=2.19e-05
+macro iter  29 (  3 JK    1 micro), CASSCF E = -5767.43576367907  dE = -1.20508048e-08  S^2 = 0.0000000
+               |grad[o]|=0.0172  |grad[c]|=3.46e-06  |ddm|=5.91e-06  |maxRot[o]|=1.98e-05
+macro iter  30 (  3 JK    1 micro), CASSCF E = -5767.43576368585  dE = -6.78210199e-09  S^2 = 0.0000000
+               |grad[o]|=0.0172  |grad[c]|=4.32e-06  |ddm|=9.63e-06  |maxRot[o]|=2.09e-05
+macro iter  31 ( 12 JK    1 micro), CASSCF E = -5767.43576369934  dE = -1.34896254e-08  S^2 = 0.0000000
+               |grad[o]|=0.0172  |grad[c]|=1.48e-06  |ddm|=3.57e-06  |maxRot[o]|=4.61e-05
+macro iter  32 ( 13 JK    1 micro), CASSCF E = -5767.43576390679  dE = -2.07453013e-07  S^2 = 0.0000000
+               |grad[o]|=0.0172  |grad[c]|=1.05e-06  |ddm|=1.63e-06  |maxRot[o]|=1.05e-05
+macro iter  33 (  3 JK    1 micro), CASSCF E = -5767.43576404808  dE = -1.41290002e-07  S^2 = 0.0000000
+               |grad[o]|=0.0166  |grad[c]|=4.09e-06  |ddm|=7.94e-06  |maxRot[o]|=2.03e-05
+macro iter  34 (  3 JK    1 micro), CASSCF E = -5767.43576575555  dE = -1.70747080e-06  S^2 = 0.0000000
+               |grad[o]|=0.0164  |grad[c]|=4.66e-06  |ddm|=7.4e-06  |maxRot[o]|=8.16e-05
+macro iter  35 (  3 JK    1 micro), CASSCF E = -5767.43576679326  dE = -1.03771163e-06  S^2 = 0.0000000
+               |grad[o]|=0.0106  |grad[c]|=5.59e-06  |ddm|=1.33e-05  |maxRot[o]|=7.25e-05
+macro iter  36 (  3 JK    1 micro), CASSCF E = -5767.43576709612  dE = -3.02853550e-07  S^2 = 0.0000000
+               |grad[o]|=0.00549  |grad[c]|=7.37e-06  |ddm|=1.55e-05  |maxRot[o]|=3.6e-05
+macro iter  37 (  3 JK    1 micro), CASSCF E = -5767.43576710428  dE = -8.16726242e-09  S^2 = 0.0000000
+               |grad[o]|=0.00178  |grad[c]|=3.9e-06  |ddm|=7.12e-06  |maxRot[o]|=1.29e-05
+macro iter  38 (  3 JK    1 micro), CASSCF E = -5767.43576710962  dE = -5.33964339e-09  S^2 = 0.0000000
+               |grad[o]|=0.00171  |grad[c]|=3.78e-06  |ddm|=9.3e-06  |maxRot[o]|=2.75e-05
+macro iter  39 (  3 JK    1 micro), CASSCF E = -5767.43576711340  dE = -3.77349352e-09  S^2 = 0.0000000
+               |grad[o]|=0.00169  |grad[c]|=2.99e-06  |ddm|=5.16e-06  |maxRot[o]|=1.67e-05
+macro iter  40 (  3 JK    1 micro), CASSCF E = -5767.43576711672  dE = -3.31874617e-09  S^2 = 0.0000000
+               |grad[o]|=0.00168  |grad[c]|=3.66e-06  |ddm|=7.31e-06  |maxRot[o]|=2.22e-05
+macro iter  41 (  3 JK    1 micro), CASSCF E = -5767.43576711978  dE = -3.06226866e-09  S^2 = 0.0000000
+               |grad[o]|=0.00167  |grad[c]|=2.67e-06  |ddm|=4.78e-06  |maxRot[o]|=1.75e-05
+macro iter  42 (  3 JK    1 micro), CASSCF E = -5767.43576712276  dE = -2.98496161e-09  S^2 = 0.0000000
+               |grad[o]|=0.00167  |grad[c]|=3.48e-06  |ddm|=6.99e-06  |maxRot[o]|=2.24e-05
+macro iter  43 ( 12 JK    1 micro), CASSCF E = -5767.43576712678  dE = -4.01632860e-09  S^2 = 0.0000000
+               |grad[o]|=0.00167  |grad[c]|=9.7e-07  |ddm|=1.04e-15  |maxRot[o]|=3.97e-05
+macro iter  44 ( 12 JK    1 micro), CASSCF E = -5767.43576713996  dE = -1.31822162e-08  S^2 = 0.0000000
+               |grad[o]|=0.00167  |grad[c]|=9.68e-07  |ddm|=    0  |maxRot[o]|=2.06e-05
+macro iter  45 ( 14 JK    1 micro), CASSCF E = -5767.43576714211  dE = -2.15277396e-09  S^2 = 0.0000000
+               |grad[o]|=0.00141  |grad[c]|=1.03e-06  |ddm|=3.34e-06  |maxRot[o]|=3.95e-06
+macro iter  46 ( 15 JK    1 micro), CASSCF E = -5767.43576714238  dE = -2.69210432e-10  S^2 = 0.0000000
+               |grad[o]|=0.00135  |grad[c]|=1.99e-07  |ddm|=    0  |maxRot[o]|=8.96e-07
+macro iter  47 (  8 JK    1 micro), CASSCF E = -5767.43576714261  dE = -2.31011654e-10  S^2 = 0.0000000
+               |grad[o]|=0.00135  |grad[c]|=2.11e-07  |ddm|=    0  |maxRot[o]|=5.34e-07
+macro iter  48 (  3 JK    1 micro), CASSCF E = -5767.43576714257  dE =  4.27462510e-11  S^2 = 0.0000000
+               |grad[o]|=0.00134  |grad[c]|=2.12e-07  |ddm|=    0  |maxRot[o]|=2.67e-08
+macro iter  49 (  1 JK    1 micro), CASSCF E = -5767.43576714257  dE =  9.09494702e-13  S^2 = 0.0000000
+               |grad[o]|=0.00134  |grad[c]|=2.12e-07  |ddm|=    0  |maxRot[o]|=    0
+macro iter  50 (  1 JK    1 micro), CASSCF E = -5767.43576714257  dE = -9.09494702e-13  S^2 = 0.0000000
+               |grad[o]|=0.00134  |grad[c]|=2.12e-07  |ddm|=    0  |maxRot[o]|=    0
+1-step CASSCF not converged,  50 macro (263 JK  69 micro) steps
+CASSCF canonicalization
+Density matrix diagonal elements [1.96132224 1.09093241 0.94774535]
+CASSCF energy = -5767.43576714257
+CASCI E = -5767.43576714257  E(CI) = -4.11617507691426  S^2 = 0.0000000
