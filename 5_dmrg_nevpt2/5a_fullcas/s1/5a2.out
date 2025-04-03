@@ -1,0 +1,28 @@
+/lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf/dft/libxc.py:772: UserWarning: Since PySCF-2.3, B3LYP (and B3P86) are changed to the VWN-RPA variant, corresponding to the original definition by Stephens et al. (issue 1480) and the same as the B3LYP functional in Gaussian. To restore the VWN5 definition, you can put the setting "B3LYP_WITH_VWN5 = True" in pyscf_conf.py
+  warnings.warn('Since PySCF-2.3, B3LYP (and B3P86) are changed to the VWN-RPA variant, '
+<class 'pyscf.mcscf.casci.CASCI'> does not have attributes  chkfile
+output file: /lustre/home/1600011363/neci-work/La2CuO4/Cu8O27La16/5_dmrg_nevpt2/5a_fullcas/s1/5a2.log
+CASCI E = -5767.84723738736  E(CI) = -132.047054839780  S^2 = 2.0000000
+
+WARN: DRMG-MCSCF orbitals are not natural orbitals in active space. It's recommended
+to rerun DMRG-CASCI with mc.natorb before calling DMRG-NEVPT2.
+See discussions in github issue https://github.com/pyscf/pyscf/issues/698 and
+example examples/dmrg/32-dmrg_casscf_nevpt2_for_FeS.py
+
+
+WARN: DMRG executable file for nevptsolver is the same to the executable file for DMRG solver. If they are both compiled by MPI compilers, they may cause error or random results in DMRG-NEVPT calculation.
+
+/lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf/dft/libxc.py:772: UserWarning: Since PySCF-2.3, B3LYP (and B3P86) are changed to the VWN-RPA variant, corresponding to the original definition by Stephens et al. (issue 1480) and the same as the B3LYP functional in Gaussian. To restore the VWN5 definition, you can put the setting "B3LYP_WITH_VWN5 = True" in pyscf_conf.py
+  warnings.warn('Since PySCF-2.3, B3LYP (and B3P86) are changed to the VWN-RPA variant, '
+Nevpt Energy:
+Sr Subspace:  E = -0.01636838319008
+Si Subspace:  E = -0.01681445259652
+Sr    (-1)',   E = -0.01636838319008
+Si    (+1)',   E = -0.01681445259652
+Sijrs (0)  ,   E = -1.69923684547609
+Sijr  (+1) ,   E = -0.08374931518263
+Srsi  (-1) ,   E = -0.11011167376269
+Srs   (-2) ,   E = -0.24942209579926
+Sij   (+2) ,   E = -0.02298814370527
+Sir   (0)' ,   E = -0.32651402372291
+Nevpt2 Energy = -2.525204933435448

@@ -1,0 +1,474 @@
+#INFO: **** input file is /lustre/home/1600011363/neci-work/La2CuO4/Cu8O27La16/5_dmrg_nevpt2/5a_fullcas/s1/5a2.py ****
+#!/usr/bin/env python3
+
+import numpy as np
+from pyscf import gto, scf  # , mcscf, fci
+from pyscf.qmmm import mm_charge
+from pyscf.tools import molden
+import os
+import sys
+from pyscf.lib import logger
+from pyscf.lo import orth
+from pyscf.lo import PM
+from pyscf.pbc.scf.addons import smearing_
+from pyscf import mcscf
+import scipy.linalg
+from functools import reduce
+from pyscf import mrpt
+
+# assign project to the filename without .py
+pyfile = __file__
+project = pyfile[:pyfile.rfind(".")]
+
+mol = gto.Mole()
+mol.max_memory = 110*1024
+mol.verbose = 5
+mol.output = project+".log"
+mol.build(
+    atom="""
+O1     -0.000000000     0.000000000     0.092050000
+Cu1     0.006363961     1.904945669     0.000000000
+Cu1    -0.006363961    -1.904945669     0.000000000
+La1     1.878187334    -0.020394374    -1.814700000
+La1    -1.878187334     0.020394374    -1.814700000
+La1     1.931704003     0.033122296     1.814700000
+La1    -1.931704003    -0.033122296     1.814700000
+O2      1.898581707    -1.898581707     0.092050000
+O2     -1.898581707     1.898581707     0.092050000
+O2      1.911309630     1.911309630    -0.092050000
+O2     -1.911309630    -1.911309630    -0.092050000
+O2      0.112137236    -1.786444471    -2.459050000
+O2     -0.112137236     1.786444471    -2.459050000
+O2     -0.124865158    -2.023446866     2.459050000
+O2      0.124865158     2.023446866     2.459050000
+O2      3.809891337     0.012727922    -0.092050000
+O2      0.012727922     3.809891337    -0.092050000
+O2     -3.809891337    -0.012727922    -0.092050000
+O2     -0.012727922    -3.809891337    -0.092050000
+Cu2    -3.803527376     1.892217746     0.000000000
+Cu2     3.803527376    -1.892217746     0.000000000
+Cu2    -3.816255298    -1.917673591     0.000000000
+Cu2     3.816255298     1.917673591     0.000000000
+La2     1.890915256     3.789496963     1.814700000
+La2    -1.890915256    -3.789496963     1.814700000
+La2    -1.918976081     3.776769041    -1.814700000
+La2     1.918976081    -3.776769041    -1.814700000
+La2     1.865459412    -3.830285711     1.814700000
+La2    -1.865459412     3.830285711     1.814700000
+La2    -1.944431925    -3.843013633    -1.814700000
+La2     1.944431925     3.843013633    -1.814700000
+La2     0.020394374    -1.878187334     4.760300000
+La2    -0.020394374     1.878187334     4.760300000
+La2     0.033122296     1.931704003    -4.760300000
+La2    -0.033122296    -1.931704003    -4.760300000
+O3      3.797163415    -3.797163415     0.092050000
+O3     -3.797163415     3.797163415     0.092050000
+O3      3.822619259     3.822619259     0.092050000
+O3     -3.822619259    -3.822619259     0.092050000
+Cu2     0.019091883     5.714837006     0.000000000
+Cu2    -0.019091883    -5.714837006     0.000000000
+O3      1.885853785    -5.708473045    -0.092050000
+O3     -1.885853785     5.708473045    -0.092050000
+O3      5.708473045    -1.885853785    -0.092050000
+O3     -5.708473045     1.885853785    -0.092050000
+O3     -5.721200967    -1.924037552     0.092050000
+O3     -1.924037552    -5.721200967     0.092050000
+O3      1.924037552     5.721200967     0.092050000
+O3      5.721200967     1.924037552     0.092050000
+O3      0.025455844     7.619782674     0.092050000
+O3     -0.025455844    -7.619782674     0.092050000
+""",
+    ecp={"Cu2": "crenbs",
+         "La": gto.basis.parse_ecp("""
+La nelec 46
+La ul
+2      1.000000000            0.0000000
+La S
+2      3.30990000            91.9321770
+2      1.65500000            -3.7887640
+La P
+2      2.83680000            63.7594860
+2      1.41840000            -0.6479580
+La D
+2      2.02130000            36.1191730
+2      1.01070000             0.2191140
+La F
+2      4.02860000           -36.0100160
+           """),
+         "La2": "crenbs"
+         },
+    basis={"Cu1": "ccpvdz",
+           "Cu2": "crenbs",
+           "O1": "ccpvdz",
+           "O2": "ccpvdz",
+           "O3": "ccpvdz@3s2p",
+           "La1":  gto.parse("""
+#BASIS SET: (4s4p3d) -> [2s2p1d] Basis  for PP46MWB
+La   S
+      5.087399            -0.417243             0.000000
+      4.270978             0.886010             0.000000
+      1.915458            -1.419752             0.000000
+      0.525596             0.000000             1.000000
+La   P
+      3.025161             0.538196             0.000000
+      2.382095            -0.981640             0.000000
+      0.584426             1.239590             0.000000
+      0.260360             0.000000             1.000000
+La   D
+      1.576824            -0.096944
+      0.592390             0.407466
+      0.249500             0.704363
+END
+"""),
+           "La2": "crenbs"
+           },
+    symmetry=False,
+    # symmetry=True,
+    # symmetry="D2h",
+    charge=10,
+)
+
+chg_fname = "../../../0_hf/La214_Grande.evjen.lat"
+chg_data = np.loadtxt(chg_fname, skiprows=2)
+coords = chg_data[:, 0:3]
+assert (coords == np.loadtxt(chg_fname, skiprows=2)[:, 0:3]).all()
+charges = chg_data[:, 3]
+
+def dump_flags(qmmm_obj, verbose=None):
+    method_class = qmmm_obj.__class__.__bases__[1]
+    method_class.dump_flags(qmmm_obj, verbose)
+    logger.info(qmmm_obj, "** Add background charges for %s", method_class)
+    if qmmm_obj.verbose >= logger.DEBUG:
+        logger.debug(qmmm_obj, 'Charge      Location')
+        coords = qmmm_obj.mm_mol.atom_coords()
+        charges = qmmm_obj.mm_mol.atom_charges()
+        if len(charges) <= 12:
+            for i, z in enumerate(charges):
+                logger.debug(qmmm_obj, '%.9g    %s', z, coords[i])
+        else:
+            for i, z in enumerate(charges[:6]):
+                logger.debug(qmmm_obj, '%.9g    %s', z, coords[i])
+            logger.debug(qmmm_obj, '...... (%i point charges in total)', len(charges))
+            for i, z in enumerate(charges[-6:]):
+                logger.debug(qmmm_obj, '%.9g    %s', z, coords[i])
+    return qmmm_obj
+
+def add_vext(mf, mol=None, h1e=None, enuc=None, v_ext=None, e_ext=None):
+    '''
+        A one-step function to add external potential and extra energy (1-body term, mf.get_hcore(); and constant term, mf.energy_nuc()).
+        If this function is called on the same mf for many times, the latter call will remove extra h and e and re-add external terms for the original mf.
+        To remove extra terms, just call add_vext(mf) with unspecified v_ext and e_ext.
+    '''
+    if mol is None:
+        mol = mf.mol
+    if h1e is None:
+        h1e = mf.__class__.get_hcore(mf, mol)
+    if enuc is None:
+        enuc = mf.__class__.energy_nuc(mf)
+    if v_ext is not None:
+        logger.note(mf, '** Add external potential for %s **' % mf.__class__)
+        mf.get_hcore = lambda *arg: h1e + v_ext
+    else:
+        logger.note(mf, '** No external potential added for %s **' % mf.__class__)
+    if e_ext is not None:
+        logger.note(mf, '** Add extra energy %.8f for %s **' % (e_ext, mf.__class__))
+        mf.energy_nuc = lambda *arg: enuc + e_ext
+    else:
+        logger.note(mf, '** No external potential added for %s **' % mf.__class__)
+
+from pyscf.lib.chkfile import load, save
+emb_chk = "../../../2_proj/2c_proj_rhf_mixed.chk"
+mo_chk = "../5a1_casgen.chk"
+
+# Load projection embedding potential and energy from chk.
+h1e = load(emb_chk, "h1e")
+vemb = load(emb_chk, "vemb")
+eemb = load(emb_chk, "eemb")
+
+mf_ao = mm_charge(scf.RHF(mol), coords, charges)
+s = mf_ao.get_ovlp()
+mf_ao.dump_flags = lambda *args, **kwargs: dump_flags(mf, *args, **kwargs)
+# Load HF result for embedded system.
+mf_ao.mo_coeff = load(mo_chk, "s1_coeff")
+mf_ao.mol.nelectron = load(mo_chk, "nelectron")
+
+# Add embedding potential and energy to the system.
+add_vext(mf_ao, h1e=h1e, v_ext=vemb, e_ext=eemb)
+
+# Now really do the CASSCF S=0.
+
+from pyscf import dmrgscf
+from pyscf import ao2mo
+norb, nelec = 292, (99, 97)
+mc_ao = mcscf.CASCI(mf_ao, norb, nelec)
+logger.info(mc_ao, "Start generating h1e_cas, nuc_cas in MO basis.")
+h1e_cas, nuc_cas = mc_ao.get_h1eff()
+logger.info(mc_ao, "h1e_cas, nuc_cas generated. ")
+logger.info(mc_ao, "Start generating eri_cas in MO basis. ")
+eri_cas = ao2mo.restore(8, mc_ao.get_h2eff(), norb)
+logger.info(mc_ao, "eri_cas generated, shape = %s" % (eri_cas.shape,))
+
+mol_mo = gto.M()
+mol_mo.max_memory = mol.max_memory
+mol_mo.output = mol.output
+mol_mo.nelectron = sum(nelec) # 196
+mol_mo.nao = norb # 292
+mol_mo.incore_anyway = True
+
+mf_mo = scf.RHF(mol_mo)
+mf_mo.get_hcore = lambda *args: h1e_cas
+mf_mo.energy_nuc = lambda *args: nuc_cas
+mf_mo.get_ovlp = lambda *args: np.identity(mol_mo.nao)
+mf_mo._eri = eri_cas
+mf_mo.mo_coeff = np.identity(mol_mo.nao)
+
+norb_mo, nelec_mo = 26, (13, 11)
+mc_mo = mcscf.CASCI(mf_mo, norb_mo, nelec_mo)
+mc_mo.fcisolver = dmrgscf.DMRGCI(mol_mo, maxM=1000)
+# Specify M here, should converge with M in principle
+# mc_ao.fcisolver.wfnsym = 'A'
+# sing.fcisolver.spin = 1  # ????? probably ignored
+# sing.fcisolver.num_thrds=int(os.environ.get('OMP_NUM_THREADS',1))
+# sing.fcisolver.memory=mol.max_memory/1024.
+mc_mo.fcisolver.runtimeDir = os.path.abspath('.')
+mc_mo.fcisolver.scratchDirectory = os.path.join(mc_mo.fcisolver.runtimeDir, "dmrg_scratch")
+mc_mo.fcisolver.block_extra_keyword = ["warmup occ", 
+                                       "occ " + " ".join(["2"]*11)
+                                        + " " + " ".join(["1"]*2)
+                                        + " " + " ".join(["0"]*13), 
+                                       "cbias 0.2",
+                                       "singlet_embedding", 
+                                       "gaopt default"]
+# mc_mo.fcisolver.threads = int(os.environ.get("OMP_NUM_THREADS", 32))
+mc_mo.fcisolver.threads = 64
+mc_mo.fcisolver.memory = mol.max_memory // 1024
+mc_mo.chkfile = project + '_dmrg_s1.chk'
+mc_mo.kernel()
+
+mpt_mo = mrpt.NEVPT(mc_mo).compress_approx()
+# In this way, virtual CAS orbitals other than La 5d are frozen. 
+# However, core orbitals are not frozen, since h1e_for_cas is involved and I don't know how to do that. 
+mpt_mo.scratchDirectory = os.path.join(mc_mo.fcisolver.runtimeDir, "nevpt_scratch")
+mpt_mo.chkfile = project + '_nevpt_s1.chk'
+mpt_mo.kernel()
+
+#INFO: ******************** input file end ********************
+
+
+System: uname_result(system='Linux', node='l08c56n4', release='4.18.0-425.3.1.el8.x86_64', version='#1 SMP Wed Nov 9 20:13:27 UTC 2022', machine='x86_64')  Threads 64
+Python 3.11.5 (main, Sep 11 2023, 13:54:46) [GCC 11.2.0]
+numpy 1.24.3  scipy 1.11.1
+Date: Sun Dec  3 03:34:08 2023
+PySCF version 2.4.0
+PySCF path  /lustre/home/1600011363/anaconda3/lib/python3.11/site-packages/pyscf
+
+[CONFIG] conf_file None
+[INPUT] verbose = 5
+[INPUT] max_memory = 112640 
+[INPUT] num. atoms = 51
+[INPUT] num. electrons = 410
+[INPUT] charge = 10
+[INPUT] spin (= nelec alpha-beta = 2S) = 0
+[INPUT] symmetry False subgroup None
+[INPUT] Mole.unit = angstrom
+[INPUT] Symbol           X                Y                Z      unit          X                Y                Z       unit  Magmom
+[INPUT]  1 O1     0.000000000000   0.000000000000   0.092050000000 AA    0.000000000000   0.000000000000   0.173949289766 Bohr   0.0
+[INPUT]  2 Cu1    0.006363961000   1.904945669000   0.000000000000 AA    0.012026143357   3.599825596586   0.000000000000 Bohr   0.0
+[INPUT]  3 Cu1   -0.006363961000  -1.904945669000   0.000000000000 AA   -0.012026143357  -3.599825596586   0.000000000000 Bohr   0.0
+[INPUT]  4 La1    1.878187334000  -0.020394374000  -1.814700000000 AA    3.549259671887  -0.038539781342  -3.429285998248 Bohr   0.0
+[INPUT]  5 La1   -1.878187334000   0.020394374000  -1.814700000000 AA   -3.549259671887   0.038539781342  -3.429285998248 Bohr   0.0
+[INPUT]  6 La1    1.931704003000   0.033122296000   1.814700000000 AA    3.650391519396   0.062592068057   3.429285998248 Bohr   0.0
+[INPUT]  7 La1   -1.931704003000  -0.033122296000   1.814700000000 AA   -3.650391519396  -0.062592068057   3.429285998248 Bohr   0.0
+[INPUT]  8 O2     1.898581707000  -1.898581707000   0.092050000000 AA    3.587799451339  -3.587799451339   0.173949289766 Bohr   0.0
+[INPUT]  9 O2    -1.898581707000   1.898581707000   0.092050000000 AA   -3.587799451339   3.587799451339   0.173949289766 Bohr   0.0
+[INPUT] 10 O2     1.911309630000   1.911309630000  -0.092050000000 AA    3.611851739944   3.611851739944  -0.173949289766 Bohr   0.0
+[INPUT] 11 O2    -1.911309630000  -1.911309630000  -0.092050000000 AA   -3.611851739944  -3.611851739944  -0.173949289766 Bohr   0.0
+[INPUT] 12 O2     0.112137236000  -1.786444471000  -2.459050000000 AA    0.211908664406  -3.375890786934  -4.646931026612 Bohr   0.0
+[INPUT] 13 O2    -0.112137236000   1.786444471000  -2.459050000000 AA   -0.211908664406   3.375890786934  -4.646931026612 Bohr   0.0
+[INPUT] 14 O2    -0.124865158000  -2.023446866000   2.459050000000 AA   -0.235960951121  -3.823760404350   4.646931026612 Bohr   0.0
+[INPUT] 15 O2     0.124865158000   2.023446866000   2.459050000000 AA    0.235960951121   3.823760404350   4.646931026612 Bohr   0.0
+[INPUT] 16 O2     3.809891337000   0.012727922000  -0.092050000000 AA    7.199651191283   0.024052286715  -0.173949289766 Bohr   0.0
+[INPUT] 17 O2     0.012727922000   3.809891337000  -0.092050000000 AA    0.024052286715   7.199651191283  -0.173949289766 Bohr   0.0
+[INPUT] 18 O2    -3.809891337000  -0.012727922000  -0.092050000000 AA   -7.199651191283  -0.024052286715  -0.173949289766 Bohr   0.0
+[INPUT] 19 O2    -0.012727922000  -3.809891337000  -0.092050000000 AA   -0.024052286715  -7.199651191283  -0.173949289766 Bohr   0.0
+[INPUT] 20 Cu2   -3.803527376000   1.892217746000   0.000000000000 AA   -7.187625047926   3.575773307982   0.000000000000 Bohr   0.0
+[INPUT] 21 Cu2    3.803527376000  -1.892217746000   0.000000000000 AA    7.187625047926  -3.575773307982   0.000000000000 Bohr   0.0
+[INPUT] 22 Cu2   -3.816255298000  -1.917673591000   0.000000000000 AA   -7.211677334640  -3.623877883301   0.000000000000 Bohr   0.0
+[INPUT] 23 Cu2    3.816255298000   1.917673591000   0.000000000000 AA    7.211677334640   3.623877883301   0.000000000000 Bohr   0.0
+[INPUT] 24 La2    1.890915256000   3.789496963000   1.814700000000 AA    3.573311958602   7.161111409941   3.429285998248 Bohr   0.0
+[INPUT] 25 La2   -1.890915256000  -3.789496963000   1.814700000000 AA   -3.573311958602  -7.161111409941   3.429285998248 Bohr   0.0
+[INPUT] 26 La2   -1.918976081000   3.776769041000  -1.814700000000 AA   -3.626339232681   7.137059123226  -3.429285998248 Bohr   0.0
+[INPUT] 27 La2    1.918976081000  -3.776769041000  -1.814700000000 AA    3.626339232681  -7.137059123226  -3.429285998248 Bohr   0.0
+[INPUT] 28 La2    1.865459412000  -3.830285711000   1.814700000000 AA    3.525207385172  -7.238190972625   3.429285998248 Bohr   0.0
+[INPUT] 29 La2   -1.865459412000   3.830285711000   1.814700000000 AA   -3.525207385172   7.238190972625   3.429285998248 Bohr   0.0
+[INPUT] 30 La2   -1.944431925000  -3.843013633000  -1.814700000000 AA   -3.674443806111  -7.262243259340  -3.429285998248 Bohr   0.0
+[INPUT] 31 La2    1.944431925000   3.843013633000  -1.814700000000 AA    3.674443806111   7.262243259340  -3.429285998248 Bohr   0.0
+[INPUT] 32 La2    0.020394374000  -1.878187334000   4.760300000000 AA    0.038539781342  -3.549259671887   8.995663270767 Bohr   0.0
+[INPUT] 33 La2   -0.020394374000   1.878187334000   4.760300000000 AA   -0.038539781342   3.549259671887   8.995663270767 Bohr   0.0
+[INPUT] 34 La2    0.033122296000   1.931704003000  -4.760300000000 AA    0.062592068057   3.650391519396  -8.995663270767 Bohr   0.0
+[INPUT] 35 La2   -0.033122296000  -1.931704003000  -4.760300000000 AA   -0.062592068057  -3.650391519396  -8.995663270767 Bohr   0.0
+[INPUT] 36 O3     3.797163415000  -3.797163415000   0.092050000000 AA    7.175598904568  -7.175598904568   0.173949289766 Bohr   0.0
+[INPUT] 37 O3    -3.797163415000   3.797163415000   0.092050000000 AA   -7.175598904568   7.175598904568   0.173949289766 Bohr   0.0
+[INPUT] 38 O3     3.822619259000   3.822619259000   0.092050000000 AA    7.223703477998   7.223703477998   0.173949289766 Bohr   0.0
+[INPUT] 39 O3    -3.822619259000  -3.822619259000   0.092050000000 AA   -7.223703477998  -7.223703477998   0.173949289766 Bohr   0.0
+[INPUT] 40 Cu2    0.019091883000   5.714837006000   0.000000000000 AA    0.036078430072  10.799476787869   0.000000000000 Bohr   0.0
+[INPUT] 41 Cu2   -0.019091883000  -5.714837006000   0.000000000000 AA   -0.036078430072 -10.799476787869   0.000000000000 Bohr   0.0
+[INPUT] 42 O3     1.885853785000  -5.708473045000  -0.092050000000 AA    3.563747164624 -10.787450644512  -0.173949289766 Bohr   0.0
+[INPUT] 43 O3    -1.885853785000   5.708473045000  -0.092050000000 AA   -3.563747164624  10.787450644512  -0.173949289766 Bohr   0.0
+[INPUT] 44 O3     5.708473045000  -1.885853785000  -0.092050000000 AA   10.787450644512  -3.563747164624  -0.173949289766 Bohr   0.0
+[INPUT] 45 O3    -5.708473045000   1.885853785000  -0.092050000000 AA  -10.787450644512   3.563747164624  -0.173949289766 Bohr   0.0
+[INPUT] 46 O3    -5.721200967000  -1.924037552000   0.092050000000 AA  -10.811502931227  -3.635904026659   0.173949289766 Bohr   0.0
+[INPUT] 47 O3    -1.924037552000  -5.721200967000   0.092050000000 AA   -3.635904026659 -10.811502931227   0.173949289766 Bohr   0.0
+[INPUT] 48 O3     1.924037552000   5.721200967000   0.092050000000 AA    3.635904026659  10.811502931227   0.173949289766 Bohr   0.0
+[INPUT] 49 O3     5.721200967000   1.924037552000   0.092050000000 AA   10.811502931227   3.635904026659   0.173949289766 Bohr   0.0
+[INPUT] 50 O3     0.025455844000   7.619782674000   0.092050000000 AA    0.048104573430  14.399302382566   0.173949289766 Bohr   0.0
+[INPUT] 51 O3    -0.025455844000  -7.619782674000   0.092050000000 AA   -0.048104573430 -14.399302382566   0.173949289766 Bohr   0.0
+[INPUT] ---------------- BASIS SET ---------------- 
+[INPUT] l, kappa, [nprim/nctr], expnt,             c_1 c_2 ...
+[INPUT] Cu1
+[INPUT] 0    0    [19   /5   ]  5430321           7.801026e-06 -4.404706e-06 9.704682e-07 -1.959354e-07 -3.532229e-07
+                                813166.5          6.065666e-05 -3.424801e-05 7.549245e-06 -1.523472e-06 -2.798812e-06
+                                185054.4          0.0003188964 -0.0001801238 3.968892e-05 -8.014808e-06 -1.432517e-05
+                                52414.66          0.001344687 -0.0007600455 0.00016772 -3.383992e-05 -6.270946e-05
+                                17098.68          0.00486905 -0.002759348 0.0006095101 -0.0001231191 -0.000217949
+                                6171.994          0.01561013 -0.00890097 0.001978846 -0.0003992085 -0.0007474316
+                                2406.481          0.04452077 -0.02579378 0.005798049 -0.0011719 -0.002049271
+                                997.2584          0.1103111 -0.06623861 0.01534158 -0.003096141 -0.005885203
+                                433.9289          0.2220342 -0.1445927 0.03540484 -0.007171993 -0.01226885
+                                196.2869          0.3133739 -0.244011 0.06702098 -0.01356621 -0.02683147
+                                91.0428           0.2315121 -0.2504837 0.08026945 -0.01643989 -0.02479261
+                                41.38425          0.0764092 0.02852577 -0.01927231 0.004107628 -0.005984746
+                                19.93278          0.1103818 0.5115874 -0.3160129 0.06693964 0.1557124
+                                9.581891          0.1094372 0.4928061 -0.4573162 0.1028221 0.1436683
+                                4.234516          0.01836311 0.08788437 0.1550841 -0.04422945 0.008374103
+                                1.985814          -0.0006043084 -0.005820281 0.7202872 -0.2031191 -0.7460711
+                                0.867083          5.092245e-05 0.0002013508 0.3885122 -0.2230022 0.1244367
+                                0.181339          -5.54073e-05 -0.0005182553 0.01924326 0.2517975 1.51011
+                                0.083657          3.969482e-05 0.0003731503 -0.007103807 0.5650091 -0.3477122
+[INPUT] 0    0    [1    /1   ]  0.036267             1
+[INPUT] 1    0    [15   /4   ]  22760.57          4e-05 -1.5e-05 3e-06 5e-06
+                                5387.679          0.000361 -0.000131 2.5e-05 4.9e-05
+                                1749.945          0.002083 -0.000755 0.000147 0.000278
+                                669.6653          0.009197 -0.003359 0.000656 0.001253
+                                284.1948          0.03266 -0.012081 0.002351 0.004447
+                                129.6077          0.093795 -0.035703 0.007004 0.01337
+                                62.25415          0.208274 -0.082502 0.016131 0.030469
+                                30.92964          0.333993 -0.13989 0.02777 0.053447
+                                15.75827          0.332493 -0.140729 0.027567 0.052639
+                                8.094211          0.154728 0.038766 -0.010115 -0.016881
+                                4.046921          0.021271 0.342695 -0.081009 -0.179448
+                                1.967869          -0.00169 0.45231 -0.110409 -0.209588
+                                0.925295          -0.001516 0.277054 -0.071732 -0.039633
+                                0.352992          -0.000242 0.043885 0.18793 0.50213
+                                0.127307          2.3e-05 -0.002802 0.564629 0.581111
+[INPUT] 1    0    [1    /1   ]  0.044356             1
+[INPUT] 2    0    [7    /2   ]  173.897           0.0027 -0.003363
+                                51.8869           0.020909 -0.026079
+                                19.3419           0.084408 -0.108231
+                                7.97572           0.213999 -0.282217
+                                3.39823           0.33598 -0.34719
+                                1.40932           0.357301 0.026711
+                                0.548858          0.264578 0.492047
+[INPUT] 2    0    [1    /1   ]  0.190199             1
+[INPUT] 3    0    [2    /1   ]  5.0286            0.42428
+                                1.2594            0.763025
+[INPUT] Cu2
+[INPUT] 0    0    [4    /1   ]  2.449             0.01028
+                                0.8596            -0.200289
+                                0.1192            0.512944
+                                0.04177           0.602319
+[INPUT] 2    0    [5    /1   ]  31.84             0.062762
+                                8.498             0.273012
+                                2.684             0.4432
+                                0.9108            0.371371
+                                0.289             0.231526
+[INPUT] O1
+[INPUT] 0    0    [8    /2   ]  11720             0.00071 -0.00016
+                                1759              0.00547 -0.001263
+                                400.8             0.027837 -0.006267
+                                113.7             0.1048 -0.025716
+                                37.03             0.283062 -0.070924
+                                13.27             0.448719 -0.165411
+                                5.025             0.270952 -0.116955
+                                1.013             0.015458 0.557368
+[INPUT] 0    0    [1    /1   ]  0.3023               1
+[INPUT] 1    0    [3    /1   ]  17.7              0.043018
+                                3.854             0.228913
+                                1.046             0.508728
+[INPUT] 1    0    [1    /1   ]  0.2753               1
+[INPUT] 2    0    [1    /1   ]  1.185                1
+[INPUT] O2
+[INPUT] 0    0    [8    /2   ]  11720             0.00071 -0.00016
+                                1759              0.00547 -0.001263
+                                400.8             0.027837 -0.006267
+                                113.7             0.1048 -0.025716
+                                37.03             0.283062 -0.070924
+                                13.27             0.448719 -0.165411
+                                5.025             0.270952 -0.116955
+                                1.013             0.015458 0.557368
+[INPUT] 0    0    [1    /1   ]  0.3023               1
+[INPUT] 1    0    [3    /1   ]  17.7              0.043018
+                                3.854             0.228913
+                                1.046             0.508728
+[INPUT] 1    0    [1    /1   ]  0.2753               1
+[INPUT] 2    0    [1    /1   ]  1.185                1
+[INPUT] O3
+[INPUT] 0    0    [8    /2   ]  11720             0.00071 -0.00016
+                                1759              0.00547 -0.001263
+                                400.8             0.027837 -0.006267
+                                113.7             0.1048 -0.025716
+                                37.03             0.283062 -0.070924
+                                13.27             0.448719 -0.165411
+                                5.025             0.270952 -0.116955
+                                1.013             0.015458 0.557368
+[INPUT] 0    0    [1    /1   ]  0.3023               1
+[INPUT] 1    0    [3    /1   ]  17.7              0.043018
+                                3.854             0.228913
+                                1.046             0.508728
+[INPUT] 1    0    [1    /1   ]  0.2753               1
+[INPUT] La1
+[INPUT] 0    0    [4    /2   ]  5.087399          -0.417243    0
+                                4.270978          0.88601    0
+                                1.915458          -1.419752    0
+                                0.525596             0    1
+[INPUT] 1    0    [4    /2   ]  3.025161          0.538196    0
+                                2.382095          -0.98164    0
+                                0.584426          1.23959    0
+                                0.26036              0    1
+[INPUT] 2    0    [3    /1   ]  1.576824          -0.096944
+                                0.59239           0.407466
+                                0.2495            0.704363
+[INPUT] La2
+[INPUT] 0    0    [3    /1   ]  0.2124            -0.3963
+                                0.1253            0.1775
+                                0.0336            1.0713
+[INPUT] 1    0    [3    /1   ]  0.2236            -0.1487
+                                0.0627            0.6086
+                                0.0241            0.5256
+[INPUT] 2    0    [4    /1   ]  0.4464            0.3975
+                                0.177             0.4767
+                                0.0736            0.2639
+                                0.0316            0.05
+
+nuclear repulsion = 9564.87656255217
+number of shells = 195
+number of NR pGTOs = 1558
+number of NR cGTOs = 590
+basis = {'Cu1': 'ccpvdz', 'Cu2': 'crenbs', 'O1': 'ccpvdz', 'O2': 'ccpvdz', 'O3': 'ccpvdz@3s2p', 'La1': [[0, [5.087399, -0.417243, 0.0], [4.270978, 0.88601, 0.0], [1.915458, -1.419752, 0.0], [0.525596, 0.0, 1.0]], [1, [3.025161, 0.538196, 0.0], [2.382095, -0.98164, 0.0], [0.584426, 1.23959, 0.0], [0.26036, 0.0, 1.0]], [2, [1.576824, -0.096944], [0.59239, 0.407466], [0.2495, 0.704363]]], 'La2': 'crenbs'}
+ecp = {'Cu2': 'crenbs', 'La': [46, [[-1, [[], [], [[1.0, 0.0]], [], [], [], []]], [0, [[], [], [[3.3099, 91.932177], [1.655, -3.788764]], [], [], [], []]], [1, [[], [], [[2.8368, 63.759486], [1.4184, -0.647958]], [], [], [], []]], [2, [[], [], [[2.0213, 36.119173], [1.0107, 0.219114]], [], [], [], []]], [3, [[], [], [[4.0286, -36.010016]], [], [], [], []]]]], 'La2': 'crenbs'}
+CPU time:         0.72
+** Add external potential for <class 'pyscf.qmmm.itrf.QMMMRHF'> **
+** Add extra energy -7811.21200861 for <class 'pyscf.qmmm.itrf.QMMMRHF'> **
+Start generating h1e_cas, nuc_cas in MO basis.
+h1e_cas, nuc_cas generated. 
+Start generating eri_cas in MO basis. 
+MO integrals int2e_sph are saved in <HDF5 file "tmpjadsldjf" (mode r+)>/eri_mo
+num. MO ints = 1.8299573e+09, required disk 14639.658 MB
+step1: tmpfile /tmp/tmpokccd4zk  59665.043 MB
+step1: (ij,kl) = (42778,174345), mem cache 112640 MB, iobuf 18773.333 MB
+    CPU time for Initializing ao2mo.outcore.half_e1      2.73 sec, wall time      0.07 sec
+    CPU time for AO->MO transformation for int2e_sph 1 pass   6199.32 sec, wall time    185.85 sec
+step2: kl-pair (ao 174345, mo 42778), mem 11158.08 MB, ioblock 2737.792 MB
+    CPU time for AO->MO transformation for int2e_sph 2 pass    370.86 sec, wall time     37.45 sec
+    CPU time for AO->MO transformation for int2e_sph    6570.19 sec, wall time    223.30 sec
+eri_cas generated, shape = (915000031,)
