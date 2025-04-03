@@ -1,0 +1,176 @@
+
+********************************** INPUT START **********************************
+nelec                                                           24
+spin                                                             0
+fullrestart                                                       
+onedot                                                            
+orbitals                                                   FCIDUMP
+maxiter                                                          8
+sweep_tol                                               1.0000e-07
+outputlevel                                                      2
+hf_occ                                                    integral
+prefix                    /lustre/home/1600011363/neci-work/La2CuO4/Cu8O27La16/5_dmrg_nevpt2/5b_coreonly/s0/dmrg_scratch
+num_thrds                                                       64
+warmup                                                         occ
+occ                       2 2 2 2 2 2 2 2 2 2 2 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+cbias                                                          0.2
+singlet_embedding                                                 
+gaopt                                                      default
+restart_threepdm                                                  
+mem                                                          110 g
+schedule                  Sweep   0-   7 : Mmps =  1000 Noise =         0 DavTol =     1e-08
+irrep                                                            1
+********************************** INPUT END   **********************************
+
+SPIN ADAPTED - REAL DOMAIN - DOUBLE PREC
+qc mpo type =  QCTypes.Conventional
+ UseMainStack = 0 MinDiskUsage = 1 MinMemUsage = 0 IBuf = 0 OBuf = 0
+ FPCompression: prec = 1.00e-16 chunk = 1024
+ IMain = 0 B / 7.17 GB DMain = 0 B / 36.9 GB ISeco = 0 B / 3.07 GB DSeco = 0 B / 55.3 GB
+ OpenMP = 1 TBB = 0 BLIS = 0 MKL = GNU 2021.0.4 SeqType = Tasked MKLIntLen = 4
+ THREADING = 2 layers : Global | Operator BatchedGEMM 
+ NUMBER : Global = 64 Operator = 64 Quanta = 0 MKL = 1
+ COMPLEX = 1 SINGLE-PREC = 1 KSYMM = 0
+loading reorder for restarting =  [23  9 21  7 10 24  8 22 25 12 13  0  1 14  2 15 11 20 17  4 19  6  3 16
+  5 18]
+read integral finished 0.03946542739868164
+integral sym error =            0
+MinMPOMemUsage =  False
+using occ init
+using reordered occ init
+full restart
+MPS =  LLLLLLLLLLLLLLLLLLLLLLLLLK 25 1 < N=24 S=0 PG=0 >
+GS INIT MPS BOND DIMS =       1     3    10    35   126   462  1000  1000  1000  1000  1000  1000  1000  1000  1000  1000  1000  1000  1000  1000  1000   698   341   161    42    13     3
+pre-mpo memory usage =  167 MB
+build mpo start ...
+build mpo finished ... Tread = 0.000 Twrite = 0.000 T = 0.064
+simpl mpo start ...
+simpl mpo finished ... Tread = 0.000 Twrite = 0.000 T = 0.257
+GS MPO BOND DIMS =      31    38    49    64    83   106   133   164   199   238   281   328   379   328   281   238   199   164   133   106    83    64    49    38    31     1
+build 1pdm mpo 0.49815206974744797
+build identity mpo 0.521238261833787
+memory usage =  366 MB
+para mpo finished 0.5283611882477999
+npdm string = ['((C+((C+(C+D)0)1+D)0)1+D)0']
+
+Build NPDM MPO | Nsites =    26 | Nmaxops =  6 | SymbolFree = T | Cutoff = 0.00e+00
+ Site =     0 /    26 .. L =       49 R =        1 M =            0 Tmid = 0.000 T = 0.001
+ Site =     1 /    26 .. L =      241 R =    68901 M =      1124578 Tmid = 0.000 T = 0.017
+ Site =     2 /    26 .. L =      575 R =    61201 M =      6948260 Tmid = 0.000 T = 0.015
+ Site =     3 /    26 .. L =     1051 R =    54097 M =     16690298 Tmid = 0.000 T = 0.013
+ Site =     4 /    26 .. L =     1669 R =    47565 M =     28575948 Tmid = 0.000 T = 0.012
+ Site =     5 /    26 .. L =     2429 R =    41581 M =     41151442 Tmid = 0.000 T = 0.011
+ Site =     6 /    26 .. L =     3331 R =    36121 M =     53259508 Tmid = 0.000 T = 0.010
+ Site =     7 /    26 .. L =     4375 R =    31161 M =     64014890 Tmid = 0.000 T = 0.009
+ Site =     8 /    26 .. L =     5561 R =    26677 M =     72779868 Tmid = 0.000 T = 0.008
+ Site =     9 /    26 .. L =     6889 R =    22645 M =     79139778 Tmid = 0.000 T = 0.007
+ Site =    10 /    26 .. L =     8359 R =    19041 M =     82878532 Tmid = 0.000 T = 0.007
+ Site =    11 /    26 .. L =     9971 R =    15841 M =     83954138 Tmid = 0.000 T = 0.006
+ Site =    12 /    26 .. L =    11725 R =    13021 M =     82474220 Tmid = 0.000 T = 0.006
+ Site =    13 /    26 .. L =    13621 R =    10557 M =     78671538 Tmid = 0.000 T = 0.006
+ Site =    14 /    26 .. L =    15659 R =     8425 M =     72879508 Tmid = 0.000 T = 0.006
+ Site =    15 /    26 .. L =    17839 R =     6601 M =     65507722 Tmid = 0.000 T = 0.006
+ Site =    16 /    26 .. L =    20161 R =     5061 M =     57017468 Tmid = 0.000 T = 0.007
+ Site =    17 /    26 .. L =    22625 R =     3781 M =     47897250 Tmid = 0.000 T = 0.007
+ Site =    18 /    26 .. L =    25231 R =     2737 M =     38638308 Tmid = 0.000 T = 0.007
+ Site =    19 /    26 .. L =    27979 R =     1905 M =     29710138 Tmid = 0.000 T = 0.008
+ Site =    20 /    26 .. L =    30869 R =     1261 M =     21536012 Tmid = 0.000 T = 0.009
+ Site =    21 /    26 .. L =    33901 R =      781 M =     14468498 Tmid = 0.000 T = 0.014
+ Site =    22 /    26 .. L =    37075 R =      441 M =      8764980 Tmid = 0.000 T = 0.011
+ Site =    23 /    26 .. L =    40391 R =      217 M =      4563178 Tmid = 0.000 T = 0.012
+ Site =    24 /    26 .. L =    43849 R =       85 M =      1856668 Tmid = 0.000 T = 0.013
+ Site =    25 /    26 .. L =        1 R =       49 M =       506630 Tmid = 0.000 T = 0.001
+Ttotal =      0.227
+
+Environment initialization | Nsites =    26 | Center =    25
+ INIT-L --> Site =    1 ..  Bmem =   176 B Rmem =   176 B T = 0.01
+ INIT-L --> Site =    2 ..  Bmem =   176 B Rmem = 9.73 KB T = 0.01
+ INIT-L --> Site =    3 ..  Bmem = 9.73 KB Rmem =  299 KB T = 0.01
+ INIT-L --> Site =    4 ..  Bmem =  299 KB Rmem = 6.80 MB T = 0.02
+ INIT-L --> Site =    5 ..  Bmem = 6.80 MB Rmem =  139 MB T = 0.20
+ INIT-L --> Site =    6 ..  Bmem =  139 MB Rmem =  990 MB T = 1.45
+ INIT-L --> Site =    7 ..  Bmem =  990 MB Rmem = 1.41 GB T = 2.53
+ INIT-L --> Site =    8 ..  Bmem = 1.41 GB Rmem = 1.94 GB T = 3.42
+ INIT-L --> Site =    9 ..  Bmem = 1.94 GB Rmem = 2.51 GB T = 4.47
+ INIT-L --> Site =   10 ..  Bmem = 2.51 GB Rmem = 3.08 GB T = 5.51
+ INIT-L --> Site =   11 ..  Bmem = 3.08 GB Rmem = 3.79 GB T = 6.81
+ INIT-L --> Site =   12 ..  Bmem = 3.79 GB Rmem = 4.67 GB T = 8.22
+ INIT-L --> Site =   13 ..  Bmem = 4.67 GB Rmem = 5.53 GB T = 9.75
+ INIT-L --> Site =   14 ..  Bmem = 5.53 GB Rmem = 6.47 GB T = 11.50
+ INIT-L --> Site =   15 ..  Bmem = 6.47 GB Rmem = 7.34 GB T = 13.10
+ INIT-L --> Site =   16 ..  Bmem = 7.34 GB Rmem = 8.33 GB T = 14.67
+ INIT-L --> Site =   17 ..  Bmem = 8.33 GB Rmem = 9.54 GB T = 16.96
+ INIT-L --> Site =   18 ..  Bmem = 9.54 GB Rmem = 10.8 GB T = 19.03
+ INIT-L --> Site =   19 ..  Bmem = 10.8 GB Rmem = 11.7 GB T = 20.42
+ INIT-L --> Site =   20 ..  Bmem = 11.7 GB Rmem = 12.6 GB T = 22.22
+ INIT-L --> Site =   21 ..  Bmem = 12.6 GB Rmem = 7.32 GB T = 15.26
+ INIT-L --> Site =   22 ..  Bmem = 7.32 GB Rmem = 2.05 GB T = 5.49
+ INIT-L --> Site =   23 ..  Bmem = 2.05 GB Rmem =  564 MB T = 1.26
+ INIT-L --> Site =   24 ..  Bmem =  564 MB Rmem = 44.7 MB T = 0.24
+ INIT-L --> Site =   25 ..  Bmem = 44.7 MB Rmem = 4.58 MB T = 0.08
+Time init sweep =      182.644 | MaxBmem = 11.7 GB | MaxRmem = 12.6 GB
+ | Tread = 0.000 | Twrite = 121.296 | Tfpread = 0.000 | Tfpwrite = 121.228 | data = 101 GB | cpsd = 76.1 GB | Tasync = 0.000
+
+
+Expectation | Direction = backward | BRA bond dimension = 1000 | KET bond dimension = 1000
+ <-- Site =   25 .. Nterms =        52872 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.14e+07 Tmult = 0.07 T = 0.11
+ <-- Site =   24 .. Nterms =       139430 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.74e+08 Tmult = 0.08 T = 0.17
+ <-- Site =   23 .. Nterms =       298066 Error =  0.000000000000/ 0.000000000000 FLOPS = 3.25e+09 Tmult = 0.14 T = 0.47
+ <-- Site =   22 .. Nterms =       526332 Error =  0.000000000000/ 0.000000000000 FLOPS = 2.48e+10 Tmult = 0.24 T = 1.35
+ <-- Site =   21 .. Nterms =       821708 Error =  0.000000000000/ 0.000000000000 FLOPS = 5.54e+10 Tmult = 1.54 T = 4.89
+ <-- Site =   20 .. Nterms =      1175974 Error =  0.000000000000/ 0.000000000000 FLOPS = 4.17e+10 Tmult = 9.60 T = 16.17
+ <-- Site =   19 .. Nterms =      1576210 Error =  0.000000000000/ 0.000000000000 FLOPS = 3.55e+10 Tmult = 12.24 T = 20.00
+ <-- Site =   18 .. Nterms =      2005796 Error =  0.000000000000/ 0.000000000000 FLOPS = 3.01e+10 Tmult = 15.61 T = 24.47
+ <-- Site =   17 .. Nterms =      2445412 Error =  0.000000000000/ 0.000000000000 FLOPS = 2.63e+10 Tmult = 18.16 T = 27.89
+ <-- Site =   16 .. Nterms =      2874038 Error =  0.000000000000/ 0.000000000000 FLOPS = 2.30e+10 Tmult = 21.14 T = 32.74
+ <-- Site =   15 .. Nterms =      3269954 Error =  0.000000000000/ 0.000000000000 FLOPS = 2.10e+10 Tmult = 24.19 T = 37.84
+ <-- Site =   14 .. Nterms =      3611740 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.96e+10 Tmult = 27.26 T = 44.74
+ <-- Site =   13 .. Nterms =      3879276 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.81e+10 Tmult = 29.67 T = 49.41
+ <-- Site =   12 .. Nterms =      4054742 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.75e+10 Tmult = 30.58 T = 53.61
+ <-- Site =   11 .. Nterms =      4123618 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.66e+10 Tmult = 30.33 T = 57.02
+ <-- Site =   10 .. Nterms =      4075684 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.60e+10 Tmult = 29.83 T = 62.83
+ <-- Site =    9 .. Nterms =      3906020 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.54e+10 Tmult = 29.60 T = 68.85
+ <-- Site =    8 .. Nterms =      3616006 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.52e+10 Tmult = 26.89 T = 73.18
+ <-- Site =    7 .. Nterms =      3214322 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.47e+10 Tmult = 23.26 T = 77.81
+ <-- Site =    6 .. Nterms =      2717948 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.45e+10 Tmult = 18.52 T = 81.18
+ <-- Site =    5 .. Nterms =      2153164 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.34e+10 Tmult = 7.95 T = 58.47
+ <-- Site =    4 .. Nterms =      1556550 Error =  0.000000000000/ 0.000000000000 FLOPS = 1.05e+10 Tmult = 1.64 T = 21.06
+ <-- Site =    3 .. Nterms =       975986 Error =  0.000000000000/ 0.000000000000 FLOPS = 4.60e+09 Tmult = 0.54 T = 4.50
+ <-- Site =    2 .. Nterms =       471652 Error =  0.000000000000/ 0.000000000000 FLOPS = 4.05e+08 Tmult = 0.23 T = 1.12
+ <-- Site =    1 .. Nterms =       117028 Error =  0.000000000000/ 0.000000000000 FLOPS = 2.92e+07 Tmult = 0.05 T = 0.34
+ <-- Site =    0 .. Nterms =            0 Error =  0.000000000000/ 0.000000000000 FLOPS = 0.00e+00 Tmult = 0.00 T = 0.03
+Time elapsed =    820.243
+Time sweep =      820.243 | 6.42 TFLOP/SWP
+ | Dmem = 25.8 GB (0%) | Imem = 23.5 KB (61%) | Hmem = 26.7 GB | MaxBmem = 22.9 GB | MaxRmem = 25.8 GB
+ | Tread = 87.335 | Twrite = 213.078 | Tfpread = 87.169 | Tfpwrite = 213.008 | data = 170 GB | cpsd = 126 GB | Tasync = 0.000
+ | Trot = 76.586 | Tctr = 31.753 | Tint = 0.100 | Tmid = 0.000 | Tdctr = 0.000 | Tdiag = 0.004 | Tinfo = 0.343
+ | Teff = 80.891 | Texpt = 359.385 | Tblk = 820.241 | Tmve = 0.000
+
+NPDM Sorting | Nsites =    26 | Nmaxops =  6 | DotSite = 0 | SymbolFree = T | Compressed = T | LowMem = F | Mem = 2.30 GB
+ Site =     0 ..  T = 0.068
+ Site =     1 ..  T = 0.143
+ Site =     2 ..  T = 0.248
+ Site =     3 ..  T = 0.233
+ Site =     4 ..  T = 0.241
+ Site =     5 ..  T = 0.227
+ Site =     6 ..  T = 0.247
+ Site =     7 ..  T = 0.239
+ Site =     8 ..  T = 0.240
+ Site =     9 ..  T = 0.203
+ Site =    10 ..  T = 0.188
+ Site =    11 ..  T = 0.184
+ Site =    12 ..  T = 0.188
+ Site =    13 ..  T = 0.143
+ Site =    14 ..  T = 0.141
+ Site =    15 ..  T = 0.120
+ Site =    16 ..  T = 0.089
+ Site =    17 ..  T = 0.079
+ Site =    18 ..  T = 0.057
+ Site =    19 ..  T = 0.046
+ Site =    20 ..  T = 0.039
+ Site =    21 ..  T = 0.036
+ Site =    22 ..  T = 0.079
+ Site =    23 ..  T = 0.020
+ Site =    24 ..  T = 0.015
+Ttotal =      3.513
+
