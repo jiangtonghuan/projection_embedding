@@ -16,7 +16,7 @@ Manby's projection embedding method implemented with PySCF. DMRG/DMRG-NEVPT2/FCI
 
 ## Citation:         
 
-For this code: Jiang, T.; Bogodanov, N. A. ; Alavi, A. ; Chen, J.  Individual and synergistic superexchange enhancement in cuprates, not published yet. 
+For this code: Jiang, T.; Bogodanov, N. A. ; Alavi, A. ; Chen, J.  Individual and synergistic superexchange enhancement in cuprates. Preprint at [https://arxiv.org/abs/2503.17596](https://arxiv.org/abs/2503.17596) (2025). 
 
 For dependences: 
 
